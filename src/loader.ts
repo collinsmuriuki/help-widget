@@ -96,21 +96,4 @@ export default (
                 );
         }
     }
-
-    // once finished processing all async calls, we going
-    // to convert LoaderObject into sync calls to methods
-    win[instanceName] = (method: MethodNames, ...args: any[]) => {
-        switch (method) {
-            case 'event': {
-                targetElement?.dispatchEvent(
-                    new CustomEvent('widget-event', {
-                        detail: { name: args?.[0] },
-                    })
-                );
-                break;
-            }
-            default:
-                console.warn(`Unsupported method [${method}]`, args);
-        }
-    };
 };
