@@ -1,6 +1,6 @@
 import { h, createContext, ComponentChildren } from 'preact';
 import { AppConfigurations, WidgetApi, Globals } from './models';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import {useRef, useState } from 'preact/hooks';
 import { ApiClient } from './services/apiClient';
 
 export const ConfigContext = createContext<AppConfigurations>({} as AppConfigurations);
