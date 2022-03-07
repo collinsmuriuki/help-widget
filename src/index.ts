@@ -13,12 +13,10 @@ const defaultConfig: Configurations = {
     minimized: false,
     disableDarkMode: false,
     text: {},
-    styles: {}
+    styles: {},
 };
 
 // main entry point - calls loader and render Preact app into supplied element
-loader(
-    window,
-    defaultConfig,
-    window.document.currentScript,
-    (el, config) => render(h(App, { ...config, element: el }), el));
+loader(window, defaultConfig, window.document.currentScript, (el, config) =>
+    render(h(App, { ...config, element: el }), el)
+);

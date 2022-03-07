@@ -27,22 +27,27 @@ export default (
     win: Window,
     defaultConfig: Configurations,
     scriptElement: Element | null,
-    render: (element: HTMLElement, config: Configurations) => void) => {
-
+    render: (element: HTMLElement, config: Configurations) => void
+) => {
     // get a hold of script tag instance, which has an
     // attribute `id` with unique identifier of the widget instance
-    const instanceName = scriptElement?.attributes.getNamedItem('id')?.value ?? DEFAULT_NAME;
+    const instanceName =
+        scriptElement?.attributes.getNamedItem('id')?.value ?? DEFAULT_NAME;
     const loaderObject: LoaderObject = win[instanceName];
     if (!loaderObject || !loaderObject.q) {
-        throw new Error(`Widget didn't find LoaderObject for instance [${instanceName}]. ` +
-            `The loading script was either modified, no call to 'init' method was done ` +
-            `or there is conflicting object defined in \`window.${instanceName}\` .`);
+        throw new Error(
+            `Widget didn't find LoaderObject for instance [${instanceName}]. ` +
+                `The loading script was either modified, no call to 'init' method was done ` +
+                `or there is conflicting object defined in \`window.${instanceName}\` .`
+        );
     }
 
     // check that the widget is not loaded twice under the same name
     if (win[`loaded-${instanceName}`]) {
-        throw new Error(`Widget with name [${instanceName}] was already loaded. `
-            + `This means you have multiple instances with same identifier (e.g. '${DEFAULT_NAME}')`);
+        throw new Error(
+            `Widget with name [${instanceName}] was already loaded. ` +
+                `This means you have multiple instances with same identifier (e.g. '${DEFAULT_NAME}')`
+        );
     }
 
     // this will an root element of the widget instance
@@ -51,23 +56,31 @@ export default (
     // iterate over all methods that were called up until now
     for (let i = 0; i < loaderObject.q.length; i++) {
         const item = loaderObject.q[i];
-        const methodName = item[0];
+        const [methodName, scriptConfig] = item;
         if (i === 0 && methodName !== 'init') {
-            throw new Error(`Failed to start Widget [${instanceName}]. 'init' must be called before other methods.`);
+            throw new Error(
+                `Failed to start Widget [${instanceName}]. 'init' must be called before other methods.`
+            );
         } else if (i !== 0 && methodName === 'init') {
             continue;
         }
 
         switch (methodName) {
             case 'init':
-                const loadedObject = Object.assign(defaultConfig, item[1]);
+                const loadedObject = { ...defaultConfig, ...scriptConfig };
                 if (loadedObject.debug) {
-                    console.log(`Starting widget [${instanceName}]`, loadedObject);
+                    console.log(
+                        `Starting widget [${instanceName}]`,
+                        loadedObject
+                    );
                 }
 
                 // the actual rendering of the widget
-                const wrappingElement = loadedObject.element ?? win.document.body;
-                targetElement = wrappingElement.appendChild(win.document.createElement('div'));
+                const wrappingElement =
+                    loadedObject.element ?? win.document.body;
+                targetElement = wrappingElement.appendChild(
+                    win.document.createElement('div')
+                );
                 targetElement.setAttribute('id', `widget-${instanceName}`);
                 render(targetElement, loadedObject);
 
@@ -77,7 +90,10 @@ export default (
             // TODO: here you can handle additional async interactions
             // with the widget from page (e.q. `_hw('refreshStats')`)
             default:
-                console.warn(`Unsupported method [${methodName}]`, item[1]);
+                console.warn(
+                    `Unsupported method [${methodName}]`,
+                    scriptConfig
+                );
         }
     }
 
@@ -87,7 +103,10 @@ export default (
         switch (method) {
             case 'event': {
                 targetElement?.dispatchEvent(
-                    new CustomEvent('widget-event', { detail: { name: args?.[0] } }));
+                    new CustomEvent('widget-event', {
+                        detail: { name: args?.[0] },
+                    })
+                );
                 break;
             }
             default:
